@@ -45,7 +45,7 @@ export default class DefaultPopup extends Component {
     // TODO: customizable props
     // show: PropTypes.bool,
     dismissTime: PropTypes.number,
-    onDimiss: PropTypes.func
+    onDismiss: PropTypes.func
   };
 
   constructor(props) {
@@ -223,7 +223,7 @@ export default class DefaultPopup extends Component {
     Animated.timing(containerSlideOffsetY, { toValue: 0, duration: duration || 400, })  // TODO: customize
       .start(({ finished }) => {
         // Reset everything and hide the popup
-        this.props.onDimiss();
+        this.props.onDismiss();
         this.setState({ show: false });
       });
   }
