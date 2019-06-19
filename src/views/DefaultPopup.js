@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Animated, View, Text, Image, Dimensions, Platform, StatusBar, StyleSheet, PanResponder, TouchableWithoutFeedback } from 'react-native';
 
 import { isIphoneX } from '../utils';
+import PropTypes from 'prop-types';
 
 const { width: deviceWidth, height: deviceHeight } = Dimensions.get('window');
 
@@ -19,13 +20,13 @@ const slideOffsetYToTranslatePixelMapping = {
 
 const HORIZONTAL_MARGIN = 8; // left/right margin to screen edge
 
-const getAnimatedContainerStyle = ({containerSlideOffsetY, containerDragOffsetY, containerScale}) => {
+const getAnimatedContainerStyle = ({ containerSlideOffsetY, containerDragOffsetY, containerScale }) => {
   // Map 0-1 value to translateY value
   const slideInAnimationStyle = {
     transform: [
-      {translateY: containerSlideOffsetY.interpolate(slideOffsetYToTranslatePixelMapping)},
-      {translateY: containerDragOffsetY},
-      {scale: containerScale},
+      { translateY: containerSlideOffsetY.interpolate(slideOffsetYToTranslatePixelMapping) },
+      { translateY: containerDragOffsetY },
+      { scale: containerScale },
     ],
   };
 
@@ -43,6 +44,8 @@ export default class DefaultPopup extends Component {
   static propTypes = {
     // TODO: customizable props
     // show: PropTypes.bool,
+    dismissTime: PropTypes.number,
+    onDimiss: PropTypes.func
   };
 
   constructor(props) {
@@ -118,7 +121,7 @@ export default class DefaultPopup extends Component {
       // 2. If not leaving screen -> slide back to original position
       this.clearTimerIfExist();
       Animated.timing(containerDragOffsetY, { toValue: 0, duration: 200 })
-        .start(({finished}) => {
+        .start(({ finished }) => {
           // Reset a new countdown
           this.countdownToSlideOut();
         });
@@ -137,7 +140,7 @@ export default class DefaultPopup extends Component {
 
     return (
       <Animated.View
-        style={getAnimatedContainerStyle({containerSlideOffsetY, containerDragOffsetY, containerScale})}
+        style={getAnimatedContainerStyle({ containerSlideOffsetY, containerDragOffsetY, containerScale })}
         {...this._panResponder.panHandlers}>
         <TouchableWithoutFeedback onPress={onPressAndSlideOut}>
           <View>
@@ -201,7 +204,7 @@ export default class DefaultPopup extends Component {
     // Animate "this.state.containerSlideOffsetY"
     const { containerSlideOffsetY } = this.state;  // Using the new one is fine
     Animated.timing(containerSlideOffsetY, { toValue: 1, duration: duration || 400, })  // TODO: customize
-      .start(({finished}) => {
+      .start(({ finished }) => {
         this.countdownToSlideOut();
       });
   }
@@ -209,7 +212,7 @@ export default class DefaultPopup extends Component {
   countdownToSlideOut = () => {
     const slideOutTimer = setTimeout(() => {
       this.slideOutAndDismiss();
-    }, 4000);  // TODO: customize
+    }, this.props.dismissTime || 400);  // TODO: customize
     this.setState({ slideOutTimer });
   }
 
@@ -218,8 +221,9 @@ export default class DefaultPopup extends Component {
 
     // Reset animation to 0 && show it && animate
     Animated.timing(containerSlideOffsetY, { toValue: 0, duration: duration || 400, })  // TODO: customize
-      .start(({finished}) => {
+      .start(({ finished }) => {
         // Reset everything and hide the popup
+        this.props.onDimiss();
         this.setState({ show: false });
       });
   }
