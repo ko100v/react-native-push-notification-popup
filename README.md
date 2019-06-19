@@ -1,1 +1,1 @@
-### THIS IS A FOR OF carsonwah/react-native-push-notification-popup
+### THIS IS A FORK OF https://github.com/carsonwah/react-native-push-notification-popup
